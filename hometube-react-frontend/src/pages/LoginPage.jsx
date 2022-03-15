@@ -12,7 +12,7 @@ const LoginPage = () => {
     >
       <Navbar />
       <div className="flex justify-center items-center p-4 grow">
-        <div className="w-11/12 md:w-4/12 lg:w-3/12">
+        <div className="w-11/12 md:w-5/12 lg:w-3/12">
           <Card bg="bg-zinc-800">
             <h1 className="mb-12 font-bold text-3xl text-white">Log In</h1>
             <Textfield
