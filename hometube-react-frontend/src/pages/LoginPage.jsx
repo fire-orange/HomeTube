@@ -16,13 +16,15 @@ const LoginPage = () => {
           <Card bg="bg-zinc-800">
             <h1 className="mb-12 font-bold text-3xl text-white">Log In</h1>
             <Textfield
-              large={true}
+              large
+              halo
               placeHolder="Username"
               className="w-full mb-4"
             />
             <Textfield
-              large={true}
-              censor={true}
+              large
+              halo
+              censor
               placeHolder="Password"
               className="w-full mb-4"
             />
