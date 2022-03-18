@@ -1,74 +1,65 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 var cookieParser = require("cookie-parser");
 const apiRoutes = require("./routes/api");
+const appRoutes = require("./routes/app");
 
 const app = express();
 
+app.use(
+  express.static(path.resolve(__dirname, "../hometube-react-frontend/build"), {
+    index: false,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.SECRET));
 
 mongoose.connect("mongodb://localhost:27017/hometubeDB");
 
-const userSchema = new mongoose.Schema({
-  avatar: String,
-  firstName: {
-    type: String,
-    required: [true, "First name is required"],
-  },
-  lastName: {
-    type: String,
-    required: [true, "Last name is required"],
-  },
-  username: {
-    type: String,
-    unique: true,
-    required: [true, "Username is required"],
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
-  sessions: [String],
-  admin: {
-    type: Boolean,
-    required: [true, "Account type is required"],
-  },
-});
-
-const User = mongoose.model("User", userSchema);
+const User = require("./models/userModel");
 
 app.use("/api/v1", apiRoutes);
+app.use("/", appRoutes);
 
 //validate login credentials
 app.post("/login", function (req, res) {
   let { username, password } = req.body;
 
-  //find user based on username
+  //query user based on username
   User.findOne({ username: username }, function (err, user) {
-    //user is found
+    //check if error in user query
     if (!err) {
+      //no error
       //compare password
       bcrypt.compare(password, user.password, function (err, result) {
-        //password match create session ID, push session ID to database and send cookie
         if (result) {
+          //password match
           const sessionId = uuidv4();
           //push session ID to database
           User.updateOne(
             { username: username },
             { $push: { sessions: sessionId } },
             function (err, result) {
-              //push successful send cookie and response
+              //check if error in pushing session ID
               if (!err) {
-                res.cookie("session", sessionId, { signed: true });
+                //push successful send cookies and response
+                res.cookie("session", sessionId, {
+                  signed: true,
+                  httpOnly: true,
+                });
+                res.cookie("username", username, {
+                  signed: true,
+                  httpOnly: true,
+                });
                 res.json({
                   success: true,
-                  msg: "Successfully logged in",
+                  msg: "Successfully logged in.",
                   redirect: true,
                   redirectUrl: "/",
                 });
@@ -76,7 +67,7 @@ app.post("/login", function (req, res) {
                 //push failed send response
                 res.json({
                   success: false,
-                  msg: "Error creating session",
+                  msg: "Error creating session.",
                   redirect: false,
                 });
               }
@@ -86,7 +77,7 @@ app.post("/login", function (req, res) {
           //password not match
           res.json({
             success: false,
-            msg: "Username and/or Password is incorrect",
+            msg: "Username and/or Password is incorrect.",
             redirect: false,
           });
         }
@@ -96,7 +87,7 @@ app.post("/login", function (req, res) {
       console.log(err);
       res.json({
         success: false,
-        msg: "Username and/or Password is incorrect",
+        msg: "Username and/or Password is incorrect.",
         redirect: false,
       });
     }
@@ -115,8 +106,9 @@ app.post("/signup", function (req, res) {
 
   //hash password
   bcrypt.hash(password, parseInt(process.env.SALTROUNDS), function (err, hash) {
-    //hash successful
+    //check if hash is successful
     if (!err) {
+      //hash successful
       //create user object
       const user = new User({
         avatar: avatar,
@@ -128,14 +120,16 @@ app.post("/signup", function (req, res) {
       });
       user.sessions.push(sessionId);
 
-      //save user credential to database
+      //save user to database
       user.save(function (err, user) {
-        //save successful send cookie and response
+        //check if save is successful
         if (!err) {
-          res.cookie("session", sessionId, { signed: true });
+          //save successful send cookies and response
+          res.cookie("session", sessionId, { signed: true, httpOnly: true });
+          res.cookie("username", username, { signed: true, httpOnly: true });
           res.json({
             success: true,
-            msg: "User saved successfully",
+            msg: "User saved successfully.",
             redirect: true,
             redirectUrl: "/",
           });
@@ -144,7 +138,7 @@ app.post("/signup", function (req, res) {
           console.log(err);
           res.json({
             success: false,
-            msg: "Error occurred",
+            msg: "Username taken.",
             redirect: true,
             redirectUrl: "/signup",
           });
@@ -155,7 +149,7 @@ app.post("/signup", function (req, res) {
       console.log(err);
       res.json({
         success: false,
-        msg: "Error occurred",
+        msg: "Error occurred.",
         redirect: true,
         redirectUrl: "/signup",
       });
