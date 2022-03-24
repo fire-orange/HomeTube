@@ -1,18 +1,24 @@
 import "./App.css";
-import LoginPage from "./pages/LoginPage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "react-query";
+import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/">
-          <Route index element={<HomePage />} />
-          <Route path="login" element={<LoginPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/">
+            <Route index element={<HomePage />} />
+            <Route path="login" element={<AuthPage />} />
+            <Route path="signup" element={<AuthPage signup />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

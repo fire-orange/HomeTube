@@ -20,7 +20,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  sessions: [String],
+  sessions: {
+    type: [String],
+    required: true,
+  },
   admin: {
     type: Boolean,
     required: true,
