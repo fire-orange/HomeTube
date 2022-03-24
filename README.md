@@ -1,2 +1,2 @@
 # HomeTube
-A local network video streaming service.
+A local network video streaming server.
