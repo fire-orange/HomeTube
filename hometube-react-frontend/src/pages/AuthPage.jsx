@@ -99,7 +99,7 @@ const AuthPage = (props) => {
 
   return (
     <div
-      style={{ backgroundColor: "black", minHeight: "100vh" }}
+      style={{ backgroundColor: "black", minHeight: "100vh", minWidth: "100vw" }}
       className=" flex flex-col"
     >
       <Navbar />

@@ -9,12 +9,12 @@ const Navbar = (props) => {
   const avatarConfig = JSON.parse(localStorage.getItem("avatar"));
 
   return (
-    <div className="flex items-center bg-zinc-800 p-4">
+    <div className="flex items-center bg-zinc-800 p-1 md:p-4">
       <h1 className=" text-white font-bold text-2xl grow">
         HomeTube
       </h1>
       {searchBar ? (
-        <div className="flex grow invisible md:visible">
+        <div className="flex invisible md:visible md:grow">
           <Textfield
             placeHolder="Search"
             className=" text-white bg-black w-full rounded-r-none"

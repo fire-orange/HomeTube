@@ -84,4 +84,10 @@ router.get("/signup", checkAuthRequired, function (req, res) {
   );
 });
 
+router.get("/watch/:video", validateSession, function (req, res) {
+  res.sendFile(
+    path.resolve(__dirname, "../../hometube-react-frontend/build", "index.html")
+  );
+});
+
 module.exports = router;

@@ -8,21 +8,24 @@ const Img = (props) => {
   let [image, setImage] = useState(defaultImg);
 
   function onSuccess(data) {
-      setImage(URL.createObjectURL(data.data));
+    URL.revokeObjectURL(image);
+    setImage(URL.createObjectURL(data.data));
   }
 
   function onError() {
+    setImage(defaultImg);
     setTimeout(refetch, 10000);
   }
 
-  const {refetch} = useQuery(
+  const { refetch } = useQuery(
     "img-" + name,
     () => {
-      return axios.get(src,{
-        responseType: 'blob',
+      return axios.get(src, {
+        responseType: "blob",
+        refetchOnMount: true,
       });
     },
-    { onSuccess: onSuccess, onError: onError, staleTime: Infinity}
+    { onSuccess: onSuccess, onError: onError }
   );
 
   return <img className={className} src={image} alt={alt} />;

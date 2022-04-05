@@ -4,11 +4,14 @@ import Card from "../components/Card";
 import Img from "../components/Img";
 import { useQuery } from "react-query";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import UploadModal from "../components/UploadModal";
 
 const HomePage = () => {
   let [showUploadModal, setShowUploadModal] = useState(false);
   let [videos, setVideos] = useState([]);
+
+  let navigate = useNavigate();
 
   function onSuccess(data) {
     setVideos(data.data.videos);
@@ -35,9 +38,13 @@ const HomePage = () => {
     setShowUploadModal(true);
   }
 
+  function playVideoOnClick(video) {
+    navigate("/watch/" + video);
+  }
+
   return (
     <div
-      style={{ backgroundColor: "black", minHeight: "100vh" }}
+      style={{ backgroundColor: "black", minHeight: "100vh", minWidth: "100vw"}}
       className=" flex flex-col"
     >
       <Navbar avatar searchBar upload handleUploadClick={handleUploadClick} />
@@ -52,7 +59,7 @@ const HomePage = () => {
         {videos.map((video) => {
           return (
             <div className="w-full md:w-4/12 lg:w-3/12">
-              <Card bg="bg-zinc-800" className="m-2">
+              <Card bg="bg-zinc-800" className="m-2 cursor-pointer" onClick={() => {playVideoOnClick(video.fileName)}}>
                 <Img
                   className="w-full"
                   src={"/api/v1/thumbnails/" + video.thumbnail}

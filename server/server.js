@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 var cookieParser = require("cookie-parser");
 const apiRoutes = require("./routes/api");
 const appRoutes = require("./routes/app");
+const IPv4 = require("./network-ip");
 
 const app = express();
 
@@ -63,7 +64,7 @@ app.post("/login", function (req, res) {
                     success: true,
                     msg: "Successfully logged in.",
                     redirectUrl: "/",
-                    usernamme: user.username,
+                    username: user.username,
                     name: user.firstName + " " + user.lastName,
                     avatar: user.avatar,
                   });
@@ -185,6 +186,6 @@ app.post("/signup", function (req, res) {
   }
 });
 
-app.listen(process.env.PORT, function () {
-  console.log("Listening on port " + process.env.PORT);
+app.listen(process.env.PORT, IPv4, function () {
+  console.log("Listening on " + IPv4 + " port " + process.env.PORT);
 });
