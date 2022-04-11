@@ -38,20 +38,24 @@ const HomePage = () => {
     setShowUploadModal(true);
   }
 
-  function playVideoOnClick(video) {
+  function videoCardClicked(video) {
     navigate("/watch/" + video);
   }
 
   return (
     <div
-      style={{ backgroundColor: "black", minHeight: "100vh", minWidth: "100vw"}}
+      style={{
+        backgroundColor: "black",
+        minHeight: "100vh",
+        minWidth: "100vw",
+      }}
       className=" flex flex-col"
     >
       <Navbar avatar searchBar upload handleUploadClick={handleUploadClick} />
       {showUploadModal ? (
         <UploadModal
           onClose={handleUploadModalClose}
-          onComplete={handleUploadModalComplete}
+          onDone={handleUploadModalComplete}
         />
       ) : null}
 
@@ -59,7 +63,13 @@ const HomePage = () => {
         {videos.map((video) => {
           return (
             <div className="w-full md:w-4/12 lg:w-3/12">
-              <Card bg="bg-zinc-800" className="m-2 cursor-pointer" onClick={() => {playVideoOnClick(video.fileName)}}>
+              <Card
+                bg="bg-zinc-800"
+                className="m-2 cursor-pointer"
+                onClick={() => {
+                  videoCardClicked(video.fileName);
+                }}
+              >
                 <Img
                   className="w-full"
                   src={"/api/v1/thumbnails/" + video.thumbnail}

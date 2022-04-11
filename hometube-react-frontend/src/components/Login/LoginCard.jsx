@@ -1,12 +1,46 @@
-import React from "react";
-import Card from "../components/Card";
-import Textfield from "../components/Textfield";
-import Button from "../components/Button";
+import React, { useState } from "react";
+import Card from "../Card";
+import Textfield from "../Textfield";
+import Button from "../Button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginCard = (props) => {
-  const { onDone, loginDetails, setLoginDetails, setErrorMsg } = props;
+  const { setErrorMsg } = props;
   let navigate = useNavigate();
+  let [loginDetails, setLoginDetails] = useState({
+    username: "",
+    password: "",
+  });
+
+  function handleLogin() {
+    if (loginDetails.username === "") {
+      setErrorMsg("Please enter a username");
+      return;
+    }
+
+    if (loginDetails.password === "") {
+      setErrorMsg("Please enter a password");
+      return;
+    }
+
+    axios
+      .post("/login", loginDetails, { withCredentials: true })
+      .then((res) => {
+        const { username, name, avatar, redirectUrl } = res.data;
+        if (res.status === 200) {
+          localStorage.setItem("avatar", avatar);
+          localStorage.setItem("name", name);
+          localStorage.setItem("username", username);
+          navigate(redirectUrl);
+        }
+      })
+      .catch((err) => {
+        const { message } = err.response.data;
+        setErrorMsg(message);
+        localStorage.clear();
+      });
+  }
 
   return (
     <Card bg="bg-zinc-800">
@@ -38,7 +72,7 @@ const LoginCard = (props) => {
           })
         }
       />
-      <Button className="w-full mb-8" onClick={onDone}>
+      <Button className="w-full mb-8" onClick={handleLogin}>
         Log In
       </Button>
       <div className="border-b-2 border-orange-500 w-2/6 mx-auto mb-8"></div>

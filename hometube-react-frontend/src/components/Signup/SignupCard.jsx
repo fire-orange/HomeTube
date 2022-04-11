@@ -1,7 +1,7 @@
 import React from "react";
-import Card from "../components/Card";
-import Textfield from "../components/Textfield";
-import Button from "../components/Button";
+import Card from "../Card";
+import Textfield from "../Textfield";
+import Button from "../Button";
 import { useNavigate } from "react-router-dom";
 
 const SignupCard = (props) => {
@@ -10,7 +10,6 @@ const SignupCard = (props) => {
     className,
     signupDetails,
     setSignupDetails,
-    errorMsg,
     setErrorMsg,
   } = props;
   let navigate = useNavigate();

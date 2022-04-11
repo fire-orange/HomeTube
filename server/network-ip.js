@@ -15,12 +15,13 @@ for (const name of Object.keys(netInterfaces)) {
 }
 
 let IPv4;
+const networkPriorityList = ["Ethernet", "Wi-Fi"];
 
-if ("Ethernet" in networks) {
-  IPv4 = networks["Ethernet"][0];
-} else {
-  if ("Wi-Fi" in networks) {
-    IPv4 = networks["Wi-Fi"][0];
+for (let index = 0; index < networkPriorityList.length; index++) {
+  const network = networkPriorityList[index];
+  if (network in networks) {
+    IPv4 = networks[network][0];
+    break;
   }
 }
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import Button from "./Button";
+import Button from "../Button";
 import Avatar from "avataaars";
-import AvatarCreatorCard from "../components/AvatarCreatorCard";
+import AvatarCreatorOptionsCard from "./AvatarCreatorOptionsCard";
 import { generateRandomAvatarOptions } from "./AvatarOptions";
 
 const AvatarCreator = (props) => {
@@ -20,16 +20,14 @@ const AvatarCreator = (props) => {
     skinColor: "Tanned",
   });
 
-  const { onDone, className } = props;
+  const { onDone } = props;
 
   useEffect(() => {
     setAvatar(generateRandomAvatarOptions());
   }, []);
 
   return (
-    <div
-      className={className + " flex flex-col md:flex-row items-center p-4 grow"}
-    >
+    <>
       <div className="flex flex-col justify-center items-center w-full md:w-6/12">
         <Avatar
           className="mb-4"
@@ -47,7 +45,7 @@ const AvatarCreator = (props) => {
           skinColor={avatar.skinColor}
         />
         <Button
-          className="bg-red-500 hover:bg-red-600"
+          className="bg-red-500 hover:bg-red-600 mb-4"
           onClick={() => {
             setAvatar(generateRandomAvatarOptions());
           }}
@@ -56,14 +54,14 @@ const AvatarCreator = (props) => {
         </Button>
       </div>
       <div className="flex justify-center w-full md:w-6/12">
-        <AvatarCreatorCard
+        <AvatarCreatorOptionsCard
           avatar={[avatar, setAvatar]}
           onDone={() => {
             onDone(avatar);
           }}
         />
       </div>
-    </div>
+    </>
   );
 };
 

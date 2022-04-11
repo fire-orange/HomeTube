@@ -1,10 +1,10 @@
 import React from "react";
 import avatarOptions from "./AvatarOptions";
-import Card from "./Card";
-import Select from "./Select";
-import Button from "./Button";
+import Card from "../Card";
+import Select from "../Select";
+import Button from "../Button";
 
-const AvatarCreatorCard = (props) => {
+const AvatarCreatorOptionsCard = (props) => {
   const avatarOptionKeys = Object.keys(avatarOptions);
   const [avatar, setAvatar] = props.avatar;
   const { onDone } = props;
@@ -58,4 +58,4 @@ const AvatarCreatorCard = (props) => {
   );
 };
 
-export default AvatarCreatorCard;
+export default AvatarCreatorOptionsCard;

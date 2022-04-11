@@ -6,18 +6,23 @@ import axios from "axios";
 import { IoIosClose } from "react-icons/io";
 
 const UploadModal = (props) => {
-  const { onComplete, onClose } = props;
+  const { onDone, onClose } = props;
 
   let [title, setTitle] = useState("");
   let [progress, setProgress] = useState(0);
   let [errorMsg, setErrorMsg] = useState(null);
   let [file, setFile] = useState(null);
 
-  function fileLoad({ target: { files } }) {
+  function loadFile({ target: { files } }) {
     setFile(files[0]);
   }
 
-  function onDone() {
+  function updateUploadProgress(uploadProgressEvent) {
+    const { loaded, total } = uploadProgressEvent;
+    setProgress(Math.floor((loaded * 100) / total));
+  }
+
+  function upload() {
     if (title === "") {
       setErrorMsg("Title cannot be empty.");
       return;
@@ -25,39 +30,32 @@ const UploadModal = (props) => {
 
     if (!file) {
       setErrorMsg("File cannot be empty.");
+      return;
     }
 
-    if (file) {
-      let data = new FormData();
-      data.append("video", file);
-      data.append("title", title);
-      data.append("author", localStorage.getItem("username"));
+    let data = new FormData();
+    data.append("video", file);
+    data.append("title", title);
+    data.append("author", localStorage.getItem("username"));
 
-      axios
-        .post("api/v1/upload", data, {
-          withCredentials: true,
-          onUploadProgress: (uploadProgressEvent) => {
-            const { loaded, total } = uploadProgressEvent;
-            setProgress(Math.floor((loaded * 100) / total));
-          },
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          if (res.data.success) {
-            onComplete();
-          } else {
-            setErrorMsg("Upload failed.");
-            setProgress(0);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          setErrorMsg("Upload failed.");
-          setProgress(0);
-        });
-    }
+    axios
+      .post("api/v1/upload", data, {
+        withCredentials: true,
+        onUploadProgress: updateUploadProgress,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          onDone();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setErrorMsg("Upload failed.");
+        setProgress(0);
+      });
   }
 
   return (
@@ -88,13 +86,13 @@ const UploadModal = (props) => {
             type="file"
             id="videoFile"
             accept="video/*"
-            onChange={fileLoad}
+            onChange={loadFile}
           />
           <div
             className="h-1 rounded-sm bg-orange-500 transition-all"
             style={{ width: progress + "%" }}
           />
-          <Button className="my-2" onClick={onDone}>
+          <Button className="my-2" onClick={upload}>
             Upload
           </Button>
         </Card>
