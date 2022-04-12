@@ -10,6 +10,22 @@ const router = Router();
 let User = require("../../models/userModel");
 let Video = require("../../models/videoModel");
 
+function execShellCommand(cmd) {
+  const exec = require("child_process").exec;
+  return new Promise((resolve, reject) => {
+    exec(cmd, { maxBuffer: 1024 * 500 }, (error, stdout, stderr) => {
+      if (error) {
+        console.warn(error);
+      } else if (stdout) {
+        console.log(stdout);
+      } else {
+        console.log(stderr);
+      }
+      resolve(stdout ? true : false);
+    });
+  });
+}
+
 const validateSession = function (req, res, next) {
   const { username, session } = req.signedCookies;
 
@@ -169,14 +185,15 @@ router.post(
 
     getVideoDurationInSeconds(file.path).then((duration) => {
       const thumbnailName = uuidv4() + ".png";
-      const thumbnailPath =
-        "C:\\dev\\HomeTube\\server\\uploads\\thumbnails\\" + thumbnailName;
+      const thumbnailPath = path.resolve(
+        path.join(__dirname, "../../uploads/thumbnails", thumbnailName)
+      );
 
-      exec(
+      execShellCommand(
         "ffmpeg -i " +
           req.file.path +
           " -s 640x360 -ss " +
-          duration / 4 +
+          Math.floor(duration / 4) +
           " -vframes 1 " +
           thumbnailPath
       );
