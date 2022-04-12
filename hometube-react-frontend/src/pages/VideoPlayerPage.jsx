@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlay } from "react-icons/fa";
 import { FaPause } from "react-icons/fa";
@@ -6,21 +6,34 @@ import { BsFullscreen } from "react-icons/bs";
 import { BsFullscreenExit } from "react-icons/bs";
 import { BsFillSkipStartFill } from "react-icons/bs";
 import { BsFillSkipEndFill } from "react-icons/bs";
+import { FaArrowLeft } from "react-icons/fa";
 import Slider from "@mui/material/Slider";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const VideoPlayerPage = () => {
   const { video } = useParams();
   const videoPlayer = useRef(null);
   const videoPlayerContainer = useRef(null);
+  let navigate = useNavigate();
 
-  let [isPaused, setIsPaused] = useState(true);
-  let [isPausedAfterSeek, setIsPausedAfterSeek] = useState(true);
+  let [videoDetails, setVideoDetails] = useState();
+  let [isPaused, setIsPaused] = useState(false);
+  let [isPausedAfterSeek, setIsPausedAfterSeek] = useState(false);
   let [isFullscreen, setIsFullscreen] = useState(false);
   let [currentTime, setCurrentTime] = useState(0);
   let [timeLeft, setTimeLeft] = useState(0);
   let [videoDuration, setVideoDuration] = useState(0);
-  let [seekTime, setSeekTime] = useState(0);
-  let shouldSeekOnMouseUp = false;
+  let [isVideoLoading, setIsVideoLoading] = useState(false);
+  let [showControls, setShowControls] = useState(true);
+  let [controlsTimeoutId, setControlsTimeoutId] = useState();
+
+  useEffect(() => {
+    axios.get("/api/v1/videos/" + video).then(function (response) {
+      setVideoDetails(response.data.video);
+    });
+  }, []);
 
   function formatDuration(seconds) {
     const minutes = Math.floor(seconds / 60);
@@ -38,7 +51,7 @@ const VideoPlayerPage = () => {
     } else {
       videoPlayer.current.pause();
     }
-    setIsPausedAfterSeek(!isPausedAfterSeek);
+    setIsPausedAfterSeek(isPaused);
   }
 
   function openCloseFullscreen() {
@@ -66,6 +79,14 @@ const VideoPlayerPage = () => {
     setVideoDuration(videoPlayer.current.duration);
   }
 
+  function handleVideoLoadStart() {
+    setIsVideoLoading(true);
+  }
+
+  function handleCanPlayVideo() {
+    setIsVideoLoading(false);
+  }
+
   function updateProgress() {
     const { currentTime } = videoPlayer.current;
     setCurrentTime(currentTime);
@@ -84,35 +105,26 @@ const VideoPlayerPage = () => {
     videoPlayer.current.currentTime = 0;
   }
 
-  function handleTimeSliderChange(event) {
-    setSeekTime(event.target.value);
-    setCurrentTime(event.target.value);
-    shouldSeekOnMouseUp = true;
-  }
-
-  function handleSeek() {
-    if (!shouldSeekOnMouseUp) {
-      return;
-    }
+  function handleSeek(seekTime) {
     videoPlayer.current.currentTime = seekTime;
     if (!isPausedAfterSeek) {
       videoPlayer.current.play();
     }
-    shouldSeekOnMouseUp = false;
+  }
+
+  function handleTimeSliderChange(event) {
+    videoPlayer.current.pause();
+    setCurrentTime(event.target.value);
+    handleSeek(event.target.value);
   }
 
   function skipForward10s() {
     videoPlayer.current.pause();
     const skip10s = videoPlayer.current.currentTime + 10;
     if (skip10s <= videoDuration) {
-      videoPlayer.current.currentTime = skip10s;
-      setCurrentTime(skip10s);
+      handleSeek(skip10s);
     } else {
-      videoPlayer.current.currentTime = videoDuration;
-      setCurrentTime(videoDuration);
-    }
-    if (!isPausedAfterSeek) {
-      videoPlayer.current.play();
+      handleSeek(videoDuration);
     }
   }
 
@@ -120,15 +132,29 @@ const VideoPlayerPage = () => {
     videoPlayer.current.pause();
     const rewind10s = videoPlayer.current.currentTime - 10;
     if (rewind10s >= 0) {
-      videoPlayer.current.currentTime = rewind10s;
-      setCurrentTime(rewind10s);
+      handleSeek(rewind10s);
     } else {
-      videoPlayer.current.currentTime = 0;
-      setCurrentTime(0);
+      handleSeek(0);
     }
-    if (!isPausedAfterSeek) {
-      videoPlayer.current.play();
-    }
+  }
+
+  function goBack() {
+    navigate(-1);
+  }
+
+  function handleHideControls() {
+    setShowControls(true);
+    clearTimeout(controlsTimeoutId);
+    setControlsTimeoutId(
+      setTimeout(() => {
+        setShowControls(false);
+      }, 5000)
+    );
+  }
+
+  function handleShowControls() {
+    setShowControls(true);
+    clearTimeout(controlsTimeoutId);
   }
 
   return (
@@ -138,28 +164,54 @@ const VideoPlayerPage = () => {
         minHeight: "100vh",
         minWidth: "100vw",
       }}
-      className=" flex justify-center items-center"
-      onMouseUp={handleSeek}
+      className={
+        " flex justify-center items-center " +
+        (showControls ? "" : "cursor-none")
+      }
+      onMouseLeave={handleHideControls}
       ref={videoPlayerContainer}
     >
-      <div
-        className="grow flex justify-center items-center"
-        style={{ maxHeight: "100vh", width: "100%", maxWidth: "100vw" }}
-      >
-        <video
-          className="w-full "
-          ref={videoPlayer}
-          style={{ maxHeight: "100vh" }}
-          onTimeUpdate={updateProgress}
-          onLoadedMetadata={onLoadedMetadata}
-          onPlay={handleVideoPlay}
-          onPause={handleVideoPause}
-          onEnded={handleVideoEnded}
-          autoPlay
+      {isVideoLoading ? (
+        <CircularProgress
+          sx={{
+            color: "#f97316",
+          }}
+          size={52}
+          className="fixed"
+        />
+      ) : null}
+      <div className="canvas fixed flex flex-col z-10 h-full w-full">
+        <div
+          className={
+            "flex justify-start items-center " + (showControls ? "" : "hidden")
+          }
+          onMouseMove={handleHideControls}
         >
-          <source src={"/api/v1/watch/" + video} type="video/mp4" />
-        </video>
-        <div className=" w-full absolute bottom-0 flex-col items-center justify-start hidden md:flex ">
+          <FaArrowLeft
+            size={36}
+            color="white"
+            className="cursor-pointer m-4"
+            onClick={goBack}
+          />
+          {videoDetails ? (
+            <div className="flex flex-col items-start justify-center">
+              <h1 className="text-white text-3xl font-bold">
+                {videoDetails.title}
+              </h1>
+              <h1 className="text-gray-300 text-md font-semibold">
+                {videoDetails.author}
+              </h1>
+            </div>
+          ) : null}
+        </div>
+        <div className="grow" onMouseMove={handleHideControls}></div>
+        <div
+          className={
+            "controls w-full flex-col items-center justify-start flex " +
+            (showControls ? "" : "hidden")
+          }
+          onMouseOver={handleShowControls}
+        >
           <div className="w-full flex items-center my-4">
             <h1 className="text-white mx-4 select-none">
               {formatDuration(currentTime)}
@@ -169,14 +221,6 @@ const VideoPlayerPage = () => {
                 value={currentTime}
                 min={0}
                 max={videoDuration}
-                onTouchEnd={handleSeek}
-                onMouseUp={handleSeek}
-                onTouchStart={() => {
-                  videoPlayer.current.pause();
-                }}
-                onMouseDown={() => {
-                  videoPlayer.current.pause();
-                }}
                 onChange={handleTimeSliderChange}
                 sx={{
                   color: "#f97316",
@@ -223,13 +267,13 @@ const VideoPlayerPage = () => {
                 onClick={skipBackward10s}
               >
                 <BsFillSkipStartFill size={36} color="white" />
-                <h1 className="text-white text-lg font-bold select-none">10</h1>
+                <h1 className="text-white text-lg font-bold ">10</h1>
               </div>
               <div
                 className="mx-4 flex items-center cursor-pointer"
                 onClick={skipForward10s}
               >
-                <h1 className="text-white text-lg font-bold select-none">10</h1>
+                <h1 className="text-white text-lg font-bold ">10</h1>
                 <BsFillSkipEndFill size={36} color="white" />
               </div>
             </div>
@@ -252,6 +296,28 @@ const VideoPlayerPage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div
+        className="grow flex justify-center items-center"
+        style={{ maxHeight: "100vh", width: "100%", maxWidth: "100vw" }}
+      >
+        <video
+          className="w-full "
+          ref={videoPlayer}
+          style={{ maxHeight: "100vh" }}
+          onTimeUpdate={updateProgress}
+          onLoadedMetadata={onLoadedMetadata}
+          onPlay={handleVideoPlay}
+          onPause={handleVideoPause}
+          onEnded={handleVideoEnded}
+          onStalled={handleVideoLoadStart}
+          onPlaying={handleCanPlayVideo}
+          onCanPlay={handleCanPlayVideo}
+          autoPlay
+        >
+          <source src={"/api/v1/watch/" + video} type="video/mp4" />
+        </video>
       </div>
     </div>
   );

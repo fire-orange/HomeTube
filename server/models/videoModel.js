@@ -21,7 +21,7 @@ const videoSchema = mongoose.Schema({
     required: true,
     index: true,
   },
-  fileName: { type: String, required: true },
+  fileName: { type: String, required: true, index: true },
   location: {
     type: String,
     required: true,

@@ -65,6 +65,29 @@ router.get("/videos", validateSession, function (req, res) {
     .lean();
 });
 
+router.get("/videos/:video", validateSession, function (req, res) {
+  const { video } = req.params;
+  Video.findOne({ fileName: video }, function (err, video) {
+    if (video && !err) {
+      res.status(200);
+      res.json({ video: video });
+    } else {
+      console.log(err);
+      res.status(500).end();
+    }
+  })
+    .select({
+      _id: 1,
+      title: 1,
+      author: 1,
+      fileName: 1,
+      length: 1,
+      date: 1,
+      thumbnail: 1,
+    })
+    .lean();
+});
+
 router.get("/thumbnails/:thumbnail", function (req, res) {
   const thumbnailPath = path.resolve(
     __dirname,

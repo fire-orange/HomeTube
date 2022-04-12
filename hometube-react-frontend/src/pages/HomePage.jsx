@@ -39,7 +39,7 @@ const HomePage = () => {
   }
 
   function videoCardClicked(video) {
-    navigate("/watch/" + video);
+    navigate("/watch/" + video.fileName);
   }
 
   return (
@@ -67,7 +67,7 @@ const HomePage = () => {
                 bg="bg-zinc-800"
                 className="m-2 cursor-pointer"
                 onClick={() => {
-                  videoCardClicked(video.fileName);
+                  videoCardClicked(video);
                 }}
               >
                 <Img

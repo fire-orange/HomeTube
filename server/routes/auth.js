@@ -7,13 +7,13 @@ const router = Router();
 const User = require("../models/userModel");
 
 function checkIfCookiesPresent(req, res, next) {
-    const { username, session } = req.signedCookies;
-    if (username && session) {
-        res.status(400);
-        res.json({message: "Already logged in."});
-    }else{
-        next();
-    }
+  const { username, session } = req.signedCookies;
+  if (username && session) {
+    res.status(400);
+    res.json({ message: "Already logged in." });
+  } else {
+    next();
+  }
 }
 
 //validate login credentials
@@ -191,20 +191,11 @@ router.post("/logout", function (req, res) {
         return;
       }
 
-      //check if user not found
-      if (!result) {
-        res.status(404);
-        res.clearCookie("session");
-        res.clearCookie("username");
-        res.json({ message: "User not found.", redirectUrl: "/login" });
-        return;
-      }
-
       //logout successful
       res.status(200);
       res.clearCookie("session");
       res.clearCookie("username");
-      res.json({ message: "User logged out.", redirectUrl: "/login"});
+      res.json({ message: "User logged out.", redirectUrl: "/login" });
     }
   );
 });
