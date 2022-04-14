@@ -142,7 +142,7 @@ router.get("/watch/:video", validateSession, function (req, res, next) {
 
     let start;
     let end;
-    const CHUNK_SIZE = 10 ** 6;
+    const CHUNK_SIZE = 20 ** 6;
     const videoSize = fs.statSync(videoLocation).size;
 
     if (req.range() != -1) {
