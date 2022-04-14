@@ -33,6 +33,8 @@ const VideoPlayerPage = () => {
     axios.get("/api/v1/videos/" + video).then(function (response) {
       setVideoDetails(response.data.video);
     });
+    document.getElementById("background").focus();
+    setHideControlsTimeout();
   }, []);
 
   function formatDuration(seconds) {
@@ -43,6 +45,23 @@ const VideoPlayerPage = () => {
     return `${hours < 10 ? `0${hours}` : hours}:${
       minutesLeft < 10 ? `0${minutesLeft}` : minutesLeft
     }:${secondsLeft < 10 ? `0${secondsLeft}` : secondsLeft}`;
+  }
+
+  function handleKeyDown(event) {
+    console.log(event);
+    setHideControlsTimeout();
+    if (event.keyCode === 32) {
+      playPauseVideo();
+      return;
+    }
+    if (event.keyCode === 37) {
+      skipBackward10s();
+      return;
+    }
+    if (event.keyCode === 39) {
+      skipForward10s();
+      return;
+    }
   }
 
   function playPauseVideo() {
@@ -142,7 +161,7 @@ const VideoPlayerPage = () => {
     navigate(-1);
   }
 
-  function handleHideControls() {
+  function setHideControlsTimeout() {
     setShowControls(true);
     clearTimeout(controlsTimeoutId);
     setControlsTimeoutId(
@@ -152,13 +171,9 @@ const VideoPlayerPage = () => {
     );
   }
 
-  function handleShowControls() {
-    setShowControls(true);
-    clearTimeout(controlsTimeoutId);
-  }
-
   return (
     <div
+      id="background"
       style={{
         backgroundColor: "black",
         minHeight: "100vh",
@@ -168,7 +183,11 @@ const VideoPlayerPage = () => {
         " flex justify-center items-center " +
         (showControls ? "" : "cursor-none")
       }
-      onMouseLeave={handleHideControls}
+      onMouseLeave={setHideControlsTimeout}
+      onMouseMove={setHideControlsTimeout}
+      onTouchEnd={setHideControlsTimeout}
+      onKeyDown={handleKeyDown}
+      tabIndex="0"
       ref={videoPlayerContainer}
     >
       {isVideoLoading ? (
@@ -180,12 +199,11 @@ const VideoPlayerPage = () => {
           className="fixed"
         />
       ) : null}
-      <div className="canvas fixed flex flex-col z-10 h-full w-full">
+      <div className="canvas fixed flex flex-col justify-between z-10 h-full w-full">
         <div
           className={
             "flex justify-start items-center " + (showControls ? "" : "hidden")
           }
-          onMouseMove={handleHideControls}
         >
           <FaArrowLeft
             size={36}
@@ -204,13 +222,11 @@ const VideoPlayerPage = () => {
             </div>
           ) : null}
         </div>
-        <div className="grow" onMouseMove={handleHideControls}></div>
         <div
           className={
             "controls w-full flex-col items-center justify-start flex " +
             (showControls ? "" : "hidden")
           }
-          onMouseOver={handleShowControls}
         >
           <div className="w-full flex items-center my-4">
             <h1 className="text-white mx-4 select-none">
