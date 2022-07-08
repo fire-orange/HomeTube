@@ -105,3 +105,4 @@ dist
 
 # Server Uploads
 uploads/
+.DS_Store

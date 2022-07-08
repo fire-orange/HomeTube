@@ -14,8 +14,8 @@ for (const name of Object.keys(netInterfaces)) {
   }
 }
 
-let IPv4;
-const networkPriorityList = ["Ethernet", "Wi-Fi"];
+let IPv4 = "localhost";
+const networkPriorityList = ["Ethernet", "Wi-Fi", "en0"];
 
 for (let index = 0; index < networkPriorityList.length; index++) {
   const network = networkPriorityList[index];
