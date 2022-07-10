@@ -59,7 +59,7 @@ const UploadModal = (props) => {
   }
 
   return (
-    <div className="fixed flex h-screen w-screen justify-center items-center bg-transparent">
+    <div className="fixed top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4 flex h-screen w-screen justify-center items-center bg-transparent">
       <div className="w-11/12 md:w-5/12 lg:w-3/12">
         <Card bg="bg-zinc-800">
           <div className="flex justify-end">

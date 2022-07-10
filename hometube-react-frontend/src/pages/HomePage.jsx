@@ -5,10 +5,11 @@ import Img from "../components/Img";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import UploadModal from "../components/UploadModal";
+
+
 
 const HomePage = () => {
-  let [showUploadModal, setShowUploadModal] = useState(false);
+  
   let [videos, setVideos] = useState([]);
 
   let navigate = useNavigate();
@@ -25,19 +26,6 @@ const HomePage = () => {
     { onSuccess: onSuccess }
   );
 
-  function handleUploadModalClose() {
-    setShowUploadModal(false);
-  }
-
-  function handleUploadModalComplete() {
-    setShowUploadModal(false);
-    refetch();
-  }
-
-  function handleUploadClick() {
-    setShowUploadModal(true);
-  }
-
   function videoCardClicked(video) {
     navigate("/watch/" + video.fileName);
   }
@@ -51,13 +39,7 @@ const HomePage = () => {
       }}
       className=" flex flex-col"
     >
-      <Navbar avatar searchBar upload handleUploadClick={handleUploadClick} />
-      {showUploadModal ? (
-        <UploadModal
-          onClose={handleUploadModalClose}
-          onDone={handleUploadModalComplete}
-        />
-      ) : null}
+      <Navbar avatar searchBar upload refetch={refetch} />
 
       <div className="p-4 grow flex justify-start flex-wrap text-white">
         {videos.map((video) => {

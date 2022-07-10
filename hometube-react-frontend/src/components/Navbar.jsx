@@ -1,32 +1,52 @@
 import React from "react";
+import { useState } from "react";
 import Avatar from "avataaars";
 import Textfield from "./Textfield";
 import Button from "./Button";
 import { FaUpload } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import UserModal from "../components/UserModal";
+import UploadModal from "../components/UploadModal";
 
 const Navbar = (props) => {
-  const { avatar, searchBar, upload, handleUploadClick } = props;
+  const { avatar, searchBar, upload, refetch} = props;
+  let [showUserModal, setShowUserModal] = useState(false);
+  let [showUploadModal, setShowUploadModal] = useState(false);
   const avatarConfig = JSON.parse(localStorage.getItem("avatar"));
 
   let navigate = useNavigate();
 
-  function handleLogout() {
-    axios
-      .post("/logout")
-      .then(function (response) {
-        console.log(response.data.message);
-        localStorage.clear();
-        navigate(response.data.redirectUrl);
-      })
-      .catch(function (err) {
-        console.log(err.response.data.message);
-      });
+  function handleAvatarClicked() {
+    setShowUserModal(true);
+  }
+
+  function handleUserModalClosed() {
+    setShowUserModal(false);
+  }
+
+  function handleUploadModalClose() {
+    setShowUploadModal(false);
+  }
+
+  function handleUploadModalComplete() {
+    setShowUploadModal(false);
+    refetch();
+  }
+
+  function handleUploadClick() {
+    setShowUploadModal(true);
   }
 
   return (
-    <div className="flex items-center bg-zinc-800 p-1 md:p-4">
+    <div className="flex items-center bg-zinc-800 p-1 md:p-4 max-h-20">
+      {showUserModal ? <UserModal onClose={handleUserModalClosed}/> : null}
+      {showUploadModal ? (
+        <UploadModal
+          onClose={handleUploadModalClose}
+          onDone={handleUploadModalComplete}
+        />
+      ) : null}
       <h1 className=" text-white font-bold text-2xl grow">HomeTube</h1>
       {searchBar ? (
         <div className="flex invisible md:visible md:grow">
@@ -49,7 +69,7 @@ const Navbar = (props) => {
             </div>
           ) : null}
           {avatarConfig ? (
-            <div className="cursor-pointer" onClick={handleLogout}>
+            <div className="cursor-pointer" onClick={handleAvatarClicked}>
               <Avatar
                 className="w-12 h-12"
                 avatarStyle="Circle"
@@ -69,7 +89,7 @@ const Navbar = (props) => {
           ) : (
             <div
               className="bg-orange-500 rounded-full w-11 h-11 cursor-pointer"
-              onClick={handleLogout}
+              onClick={handleAvatarClicked}
             ></div>
           )}
         </div>

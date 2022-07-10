@@ -4,7 +4,6 @@ const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const { getVideoDurationInSeconds } = require("get-video-duration");
 const upload = require("./MulterSetup");
-const { exec } = require("child_process");
 const router = Router();
 
 let User = require("../../models/userModel");
@@ -188,6 +187,8 @@ router.post(
       const thumbnailPath = path.resolve(
         path.join(__dirname, "../../uploads/thumbnails", thumbnailName)
       );
+
+      console.log(req.file.path + Math.floor(duration / 4) + thumbnailPath);
 
       execShellCommand(
         "ffmpeg -i " +
