@@ -8,9 +8,8 @@ Built using:
 
 # Usage
 1. Download and install Node.js, MongoDB, and FFmpeg.
-2. Download all the files from the repository.
-3. Run setup.sh
-4. Run start_hometube_server.sh to start the server.
+2. Run setup.sh
+3. Run start_hometube_server.sh to start the server.
 
 If .sh files don’t work you can open them up and follow the commands yourself.
 
